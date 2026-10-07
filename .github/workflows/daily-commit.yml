@@ -2,9 +2,8 @@ name: Daily commit
 
 on:
   schedule:
-    # Каждый день в 09:17 UTC (12:17 МСК). Время в cron — всегда UTC.
-    # Середина дня по UTC, чтобы дата коммита совпадала с датой в вашем часовом поясе.
-    - cron: "17 9 * * *"
+    # Каждый день в 07:00 UTC = 12:00 по UTC+5. Время в cron — всегда UTC.
+    - cron: "0 7 * * *"
   workflow_dispatch: # ручной запуск из вкладки Actions
 
 permissions:

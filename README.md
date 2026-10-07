@@ -26,7 +26,7 @@ GitHub засчитывает коммит, если **все** условия �
 3. **Settings → Actions → General → Workflow permissions** → выберите *Read and write permissions*.
 4. Вкладка **Actions → Daily commit → Run workflow** — проверьте ручной запуск.
 
-Время запуска задаётся в `.github/workflows/daily-commit.yml` (cron, в UTC). GitHub иногда
+Время запуска задаётся в `.github/workflows/daily-commit.yml` (cron, в UTC; сейчас 07:00 UTC = 12:00 по UTC+5). GitHub иногда
 запускает расписание с опозданием на 5–30 минут — это нормально.
 
 ## Вариант 2. Скрипт на Windows + Планировщик заданий
