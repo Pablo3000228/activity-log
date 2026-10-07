@@ -1,0 +1,49 @@
+name: Daily commit
+
+on:
+  schedule:
+    # Каждый день в 09:17 UTC (12:17 МСК). Время в cron — всегда UTC.
+    # Середина дня по UTC, чтобы дата коммита совпадала с датой в вашем часовом поясе.
+    - cron: "17 9 * * *"
+  workflow_dispatch: # ручной запуск из вкладки Actions
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-commit
+  cancel-in-progress: false
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Append to activity log and push
+        env:
+          AUTHOR_NAME: ${{ vars.COMMIT_AUTHOR_NAME }}
+          AUTHOR_EMAIL: ${{ vars.COMMIT_AUTHOR_EMAIL }}
+        run: |
+          if [ -z "$AUTHOR_NAME" ] || [ -z "$AUTHOR_EMAIL" ]; then
+            echo "::error::Задайте COMMIT_AUTHOR_NAME и COMMIT_AUTHOR_EMAIL в Settings → Secrets and variables → Actions → Variables"
+            exit 1
+          fi
+
+          # Коммит засчитывается в профиль по e-mail автора, поэтому автор — вы, а не github-actions[bot].
+          git config user.name  "$AUTHOR_NAME"
+          git config user.email "$AUTHOR_EMAIL"
+
+          today=$(date -u +%F)
+          file="activity/$(date -u +%Y).md"
+          mkdir -p activity
+
+          if grep -q "^- $today" "$file" 2>/dev/null; then
+            echo "Запись за $today уже есть — пропускаю."
+            exit 0
+          fi
+
+          echo "- $today $(date -u +%H:%M) UTC" >> "$file"
+          git add "$file"
+          git commit -m "Activity log: $today"
+          git push
