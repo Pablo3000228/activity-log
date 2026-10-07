@@ -39,7 +39,15 @@ try {
     $email = (& git config user.email)
     if (-not $email) { throw 'Не задан git user.email — коммит не засчитается в профиль.' }
 
-    Invoke-Git pull --rebase --autostash --quiet | Out-Null
+    # После включения ПК сеть может появиться не сразу — ждём до 10 минут
+    for ($i = 1; ; $i++) {
+        try { Invoke-Git pull --rebase --autostash --quiet | Out-Null; break }
+        catch {
+            if ($i -ge 20) { throw }
+            Write-Log "GitHub недоступен (попытка $i из 20), жду 30 секунд..."
+            Start-Sleep -Seconds 30
+        }
+    }
 
     $now   = Get-Date
     $today = $now.ToString('yyyy-MM-dd')
